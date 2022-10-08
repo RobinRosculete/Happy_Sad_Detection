@@ -1,4 +1,5 @@
 #Face detection using haarcascade from opencv
+from tkinter import X
 import numpy as np
 import cv2
 import matplotlib
@@ -82,8 +83,24 @@ for image_directorie in image_directories:
               person_file_names_dictionery[person_face].append(cropped_file_path)
               count+=1
               
+class_dictionery = {}
+count = 0 
+for person_face in person_file_names_dictionery.keys():
+    class_dictionery[person_face] = count
+    count +=1 
+X= [] #model input
+Y = []  #model output
+#Staking initial image and wavelet image
 for person_face, training_file in person_file_names_dictionery.items():
     for training_image in training_file:
         image = cv2.imread(training_image)
-        saclled_raw_image = cv2.resize(image,(32,32))
-        imagge_har =wavelet2d(image,'dv1',5)
+        if image is not None:
+         saclled_raw_image = cv2.resize(image,(32,32))
+         image_har =wavelet2d(image,'db1',5)
+         sacalled_image_har = cv2.resize(image_har,(32,32))
+         combined_image = np.vstack((saclled_raw_image.reshape(32*32*3,1),sacalled_image_har.reshape(32*32,1)))
+         X.append(combined_image)
+         Y.append(class_dictionery[person_face])
+  
+#reshaping  to (40,4096), and converting to flaot
+X = np.array(X).reshape(len(X),4096).astype(float)
