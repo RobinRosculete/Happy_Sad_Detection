@@ -8,8 +8,8 @@ import os
 import shutil
 import pywt
 
-face_cascade = cv2.CascadeClassifier('./opncv/haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier('./opncv/haarcascade_eye.xml')
+face_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_eye.xml')
         
 #function purpose to crop an image that contains both face and two eyes
 def get_cropped_image_if_eyes(image_path):
@@ -45,8 +45,8 @@ def wavelet2d(image, mode='haar', level=1):
     return imageArray_H
    
 
-path_to_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Dataset/'
-path_to_cropped_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Dataset/Cropped/'
+path_to_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/Dataset'
+path_to_cropped_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/Dataset/Cropped/'
 
 image_directories =[]
 for entry in os.scandir(path_to_data):
