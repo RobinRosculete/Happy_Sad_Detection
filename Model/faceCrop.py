@@ -7,9 +7,15 @@ from matplotlib import pyplot as plt
 import os
 import shutil
 import pywt
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report
 
-face_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_eye.xml')
+
+face_cascade = cv2.CascadeClassifier('./opncv/haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier('./opncv/haarcascade_eye.xml')
         
 #function purpose to crop an image that contains both face and two eyes
 def get_cropped_image_if_eyes(image_path):
@@ -45,8 +51,8 @@ def wavelet2d(image, mode='haar', level=1):
     return imageArray_H
    
 
-path_to_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/Dataset'
-path_to_cropped_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/Dataset/Cropped/'
+path_to_data = './Dataset'
+path_to_cropped_data = './Dataset/Cropped/'
 
 image_directories =[]
 for entry in os.scandir(path_to_data):
@@ -104,3 +110,9 @@ for person_face, training_file in person_file_names_dictionery.items():
   
 #reshaping  to (40,4096), and converting to flaot
 X = np.array(X).reshape(len(X),4096).astype(float)
+
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, random_state=0)
+
+pipe = Pipeline([('scaler', StandardScaler()), ('svc', SVC(kernel='rbf',C =10))])
+pipe.fit(X_train, Y_train)
+print (classification_report(Y_test, pipe.predict(X_test)))
