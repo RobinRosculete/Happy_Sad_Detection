@@ -1,17 +1,22 @@
 #Face detection using haarcascade from opencv
-from tkinter import X
 import numpy as np
+import pandas as pd
 import cv2
-import matplotlib
-from matplotlib import pyplot as plt
 import os
 import shutil
 import pywt
+from math import gamma
 from sklearn.svm import SVC
+from sklearn import svm
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
+
 
 
 
@@ -99,6 +104,7 @@ for person_face in person_file_names_dictionery.keys():
     count +=1 
 X= [] #model input
 Y = []  #model output
+
 #Staking initial image and wavelet image
 for person_face, training_file in person_file_names_dictionery.items():
     for training_image in training_file:
@@ -116,6 +122,56 @@ X = np.array(X).reshape(len(X),4096).astype(float)
 
 X_train, X_test, Y_train, Y_test = train_test_split(X,Y, random_state=0)
 
-pipe = Pipeline([('scaler', StandardScaler()), ('svc', SVC(kernel='rbf',C =100))])
-pipe.fit(X_train, Y_train) 
-print (classification_report(Y_test, pipe.predict(X_test)))
+# pipe = Pipeline([('scaler', StandardScaler()), ('svc', SVC(kernel='rbf',C =100))])
+# pipe.fit(X_train, Y_train) 
+# #print (classification_report(Y_test, pipe.predict(X_test)))
+
+#Hyper parameter Tuning (GridSearchCV)
+#Dictonery to hold model details for parameter tuning
+
+model_params = {
+    'svm': {
+        'model': svm.SVC(gamma='auto',probability=True),
+        'params' : {
+            'svc__C': [1,10,100,1000],
+            'svc__kernel': ['rbf','linear']
+        }  
+    },
+    'random_forest': {
+        'model': RandomForestClassifier(),
+        'params' : {
+            'randomforestclassifier__n_estimators': [1,5,10]
+        }
+    },
+    'logistic_regression' : {
+        'model': LogisticRegression(solver='liblinear',multi_class='auto'),
+        'params': {
+            'logisticregression__C': [1,5,10]
+        }
+    }
+}
+
+scores = [] #Keep track of thE scores
+best_estimators ={} #Store the best estimators
+
+for algo, mp in model_params.items():
+    pipe = make_pipeline(StandardScaler(), mp['model'])
+    clf =  GridSearchCV(pipe, mp['params'], cv=5, return_train_score=False)
+    clf.fit(X_train, Y_train)
+    scores.append({
+        'model': algo,
+        'best_score': clf.best_score_,
+        'best_params': clf.best_params_
+    })
+    best_estimators[algo] = clf.best_estimator_
+    
+#df = pd.DataFrame(scores,columns=['model','best_score','best_params'])
+
+#print (best_estimators['svm'].score(X_test, Y_test))
+#print (best_estimators['random_forest'].score(X_test, Y_test))
+#print (best_estimators['logistic_regression'].score(X_test, Y_test))
+
+best_clf = best_estimators['logistic_regression']
+
+cm = confusion_matrix(Y_test, best_clf.predict(X_test))
+print (cm)
