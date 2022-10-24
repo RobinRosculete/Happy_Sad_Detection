@@ -17,8 +17,8 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 
-face_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_eye.xml')
+face_cascade = cv2.CascadeClassifier('./opncv/haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier('./opncv/haarcascade_eye.xml')
         
 #function purpose to crop an image that contains both face and two eyes
 def get_cropped_image_if_eyes(image_path):
@@ -47,15 +47,15 @@ def wavelet2d(image, mode='haar', level=1):
     coefficients_H=list(coefficients)
     coefficients_H[0] *= 0
     
-    #recunstructiing image
+    #recunstructing image
     imageArray_H = pywt.waverec2(coefficients_H,mode)
     imageArray_H *= 255
     imageArray_H= np.uint8(imageArray_H)
     return imageArray_H
    
 
-path_to_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/Dataset'
-path_to_cropped_data = '/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/Dataset/Cropped/'
+path_to_data = "./data"
+path_to_cropped_data = "./data/cropped"
 
 image_directories =[]
 for entry in os.scandir(path_to_data):
@@ -81,7 +81,7 @@ for image_directorie in image_directories:
        
          roi_color = get_cropped_image_if_eyes(entry.path)
          if roi_color is not None:
-              cropped_folder = path_to_cropped_data + person_face
+              cropped_folder = path_to_cropped_data+ "/" + person_face
               if not os.path.exists(cropped_folder):
                   os.makedirs(cropped_folder)
                   cropped_image_directories.append(cropped_folder)
