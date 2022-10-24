@@ -17,11 +17,6 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 
-
-
-
-
-
 face_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier('/Users/Robin1/Desktop/Projects/Happy_Sad_detector/Model/opncv/haarcascade_eye.xml')
         
