@@ -24,13 +24,14 @@ def webcam():
             # Calling Face Detection to detect faces caught by webcam and draw a rectangle
             frame = face_detection(frame)
             results = classify_image(frame)
-            print(results)
-            results_str = "Results: " + str(results)
+            results = json.dumps(results)
+            cv2.putText(frame, results, (5, 60),
+                        cv2.FONT_HERSHEY_COMPLEX, 1.5, (0, 0, 255), 2)
+
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n' +
-                   b'Results: ' + results_str.encode() + b'\r\n')
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         else:
             break  # Release the camera when there's an issue with capturing a frame
         # return results
@@ -42,7 +43,7 @@ def webcam():
 
 def classify_image(frame):
     image = get_cropped_image_if_eyes(frame)
-    class_name_to_number, class_number_to_name, model = load_saved_model()
+    class_number_to_name, model = load_saved_model()
     result = []
     if image is not None and len(image) > 0:
         scalled_raw_img = cv2.resize(image, (32, 32))
@@ -57,7 +58,6 @@ def classify_image(frame):
         result.append({
             'class': class_number_to_name[model.predict(final)[0]],
             'class_probability': np.around(model.predict_proba(final)*100, 2).tolist()[0],
-            'class_dictionary': class_name_to_number
         })
 
     return result
@@ -73,7 +73,7 @@ def load_saved_model():
 
         with open("../model/saved_model.pkl", "rb") as f:
             model = joblib.load(f)
-    return class_name_to_number, class_number_to_name, model
+    return class_number_to_name, model
 
 
 # Function used for face detection given frame
