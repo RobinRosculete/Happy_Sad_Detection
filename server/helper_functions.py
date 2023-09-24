@@ -86,7 +86,7 @@ def face_detection(frame):
     # ******************************** Face detection ********************************
     # Detect faces in the frame
     faces = face_cascade.detectMultiScale(
-        gray_frame, scaleFactor=1.3, minNeighbors=5, minSize=(100, 100))
+        gray_frame, scaleFactor=1.3, minNeighbors=5)
 
     # Iterate over detected faces and draw rectangles
     for (x, y, w, h) in faces:
@@ -102,8 +102,7 @@ def face_detection(frame):
 
         # Iterate over detected eyes and draw rectangles
         for (ex, ey, ew, eh) in eyes:
-            cv2.rectangle(roi_color, (ex, ey),
-                          (ex + ew, ey + eh), (255, 0, 0), 2)
+            cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 0, 255), 2)
 
     return frame
 
